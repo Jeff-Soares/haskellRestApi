@@ -16,6 +16,7 @@ library
       Lib
   other-modules:
       Paths_haskellRestApi
+      Product
   hs-source-dirs:
       src
   build-depends:
