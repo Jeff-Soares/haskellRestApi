@@ -20,6 +20,8 @@ dependencies:
 - servant-server
 - wai
 - warp
+- sqlite-simple
+- text
 
 library:
   source-dirs: src

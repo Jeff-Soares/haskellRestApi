@@ -1,6 +1,18 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Lib
+import Database.SQLite.Simple
+
+initDB :: FilePath -> IO ()
+initDB dbfile = withConnection dbfile $ \conn ->
+    execute_ conn
+        "CREATE TABLE IF NOT EXISTS products (id INTEGER not null, name TEXT not null, price REAL not null)"
 
 main :: IO ()
-main = startApp
+main = do
+    initDB dbfile
+    startApp dbfile
+    where
+        dbfile = "data.db"
