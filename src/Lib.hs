@@ -35,6 +35,8 @@ type API = "products" :>
     Capture "id" Int :> Get '[JSON] [Product]
   :<|> 
     ReqBody '[JSON] ProdNoId :> Post '[JSON] NoContent
+  :<|>
+    Capture "id" Int :> Delete '[JSON] ()
   )
 
 api :: Proxy API
@@ -44,7 +46,7 @@ app :: Server API -> Application
 app server = serve api server
 
 server :: FilePath  -> Server API
-server dbfile = fullProducts :<|> singleProduct :<|> addProduct
+server dbfile = fullProducts :<|> singleProduct :<|> addProduct :<|> deleteProduct
     where
         fullProducts :: Handler [Product]
         fullProducts = liftIO $
@@ -65,9 +67,18 @@ server dbfile = fullProducts :<|> singleProduct :<|> addProduct
                         ++ Product.name p ++ "',"
                         ++ show (Product.price p) ++ ")"
             return NoContent
+
+        deleteProduct :: Int -> Handler ()
+        deleteProduct n = do
+            liftIO . withConnection dbfile $ \conn -> 
+                execute_ conn $
+                    fromString $ "DELETE FROM products WHERE id=" ++ show n
             
 
 startApp :: FilePath -> IO ()
 startApp dbfile = do
     putStrLn "Running on port: 8080"
-    run 8080 (app $ server dbfile )
+    run 8080 (app $ server dbfile)
+
+-- getError :: Handler NoContent
+-- getError = throwError err404
